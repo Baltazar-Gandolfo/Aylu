@@ -19,12 +19,19 @@ Cuando quieras que aparezcan las cosas reales, sumá los archivos con **estos
 nombres exactos**:
 
 ### 📷 Fotos
-Poné 4 fotos en la carpeta `fotos/`:
+Poné las fotos de la galería (arrastrables) en la carpeta `fotos/`:
 ```
 fotos/foto1.jpg
 fotos/foto2.jpg
 fotos/foto3.jpg
 fotos/foto4.jpg
+fotos/foto5.jpg
+```
+
+Y las dos fotos tuyas del cierre:
+```
+fotos/balta1.jpg
+fotos/balta2.jpg
 ```
 
 ### 🎬 Video

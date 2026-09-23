@@ -75,7 +75,7 @@
     position: fixed; z-index: 40;
     top: calc(env(safe-area-inset-top, 0px) + 74px);
     right: 14px;
-    max-width: 180px;
+    max-width: 190px;
     font-size: 11.5px; text-align: right; color: var(--tinta-suave);
     opacity: 0; transform: translateY(-4px);
     transition: opacity .4s ease, transform .4s ease;
@@ -157,7 +157,7 @@
     border: none; cursor: pointer; padding: 0;
     background: none; border-radius: 50% 50% 50% 8px;
     transition: transform .4s cubic-bezier(.34,1.56,.64,1);
-    transform-origin: center;
+    transform-origin: center; transform-style: preserve-3d;
   }
   .petalo-nota .cara{
     position: absolute; inset:0; border-radius: 50% 50% 50% 8px;
@@ -175,7 +175,6 @@
     color: var(--rosa-viejo); font-size: 12.5px; font-weight: 600;
     line-height: 1.35; transform: rotateY(180deg);
   }
-  .petalo-nota{ transform-style: preserve-3d; }
   .petalo-nota.abierto .frente{ transform: rotateY(180deg); }
   .petalo-nota.abierto .dorso{ transform: rotateY(360deg); }
   .flor-centro{
@@ -186,52 +185,42 @@
     box-shadow: 0 0 0 8px rgba(255,255,255,.6), var(--sombra);
   }
 
-  /* ---------- Fotos ---------- */
-  .fotos{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 24px; }
-  .foto{
-    position: relative; aspect-ratio: 3/4; border-radius: 18px; overflow: hidden;
+  /* ---------- Fotos (arrastrables) ---------- */
+  .fotos-scatter{
+    position: relative; width: 100%;
+    height: min(64svh, 440px); margin-top: 18px;
+    touch-action: pan-y;
+  }
+  .polaroid{
+    position: absolute; width: 42%; max-width: 168px;
+    background: #fff; padding: 8px 8px 26px;
+    border-radius: 6px;
+    box-shadow: var(--sombra);
+    transform: rotate(var(--rot, 0deg)) scale(0);
+    transition: transform .55s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+    cursor: grab; touch-action: none; user-select: none;
+    -webkit-user-select: none;
+  }
+  .polaroid.shown{ transform: rotate(var(--rot, 0deg)) scale(1); }
+  .polaroid.grabbing{ cursor: grabbing; box-shadow: 0 26px 55px -18px rgba(140,90,110,.6); }
+  .polaroid .marco{
+    position: relative; width: 100%; aspect-ratio: 1; overflow: hidden;
+    border-radius: 3px;
     background: linear-gradient(150deg, var(--lavanda), var(--blush));
-    box-shadow: var(--sombra);
-    transform: rotate(var(--tilt, 0deg));
-    transition: transform .4s ease;
   }
-  .foto:nth-child(odd){ --tilt: -2deg; }
-  .foto:nth-child(even){ --tilt: 2deg; }
-  .foto:active{ transform: rotate(0) scale(1.02); }
-  .foto img{ width:100%; height:100%; object-fit: cover; }
-  .foto .ph{
+  .polaroid img{ width:100%; height:100%; object-fit: cover; pointer-events: none; }
+  .polaroid .ph{
     position:absolute; inset:0; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:6px;
-    color: var(--rosa-viejo); font-size: 12px; text-align:center; padding: 10px;
+    align-items:center; justify-content:center; gap:4px;
+    color: var(--rosa-viejo); font-size: 11px; text-align:center;
   }
-  .foto .ph .em{ font-size: 26px; }
-  .foto.tiene-foto .ph{ display:none; }
-
-  /* ---------- Taylor / música ---------- */
-  .vinilo{
-    width: 190px; height: 190px; border-radius: 50%; margin: 20px auto;
-    background:
-      repeating-radial-gradient(circle at 50% 50%, #2b2430 0 3px, #35303c 3px 6px);
-    display:grid; place-items:center;
-    box-shadow: var(--sombra);
-    animation: spin 8s linear infinite; animation-play-state: paused;
+  .polaroid .ph .em{ font-size: 22px; }
+  .polaroid.tiene-foto .ph{ display:none; }
+  .polaroid .pie{
+    font-family: var(--script); font-size: 15px; color: var(--rosa-viejo);
+    text-align:center; margin-top: 4px; line-height: 1;
   }
-  .vinilo.girando{ animation-play-state: running; }
-  .vinilo .label{
-    width: 74px; height: 74px; border-radius:50%;
-    background: radial-gradient(circle at 40% 35%, var(--rosa), var(--rosa-viejo));
-    display:grid; place-items:center; color:#fff; font-size: 26px;
-    box-shadow: inset 0 0 0 4px rgba(255,255,255,.35);
-  }
-  .lyric{ font-family: var(--serif); font-style: italic; font-size: clamp(22px, 6vw, 30px); color: var(--rosa-viejo); margin: 10px 0; }
-  .btn{
-    display:inline-flex; align-items:center; gap:8px;
-    font-family: var(--sans); font-weight:600; font-size: 15px;
-    color:#fff; background: linear-gradient(140deg, var(--rosa), var(--rosa-viejo));
-    border:none; border-radius: 999px; padding: 13px 26px; cursor:pointer;
-    box-shadow: var(--sombra); transition: transform .2s ease;
-  }
-  .btn:active{ transform: scale(.95); }
+  .arrastra-hint{ font-size: 12.5px; color: var(--rosa-viejo); margin-top: 6px; }
 
   /* ---------- Video ---------- */
   .video-box{
@@ -289,13 +278,20 @@
   .tarjeta .lista li{ display:flex; align-items:center; gap:10px; justify-content:center; }
 
   /* ---------- Cierre ---------- */
-  .firma{ font-family: var(--script); font-size: 40px; color: var(--rosa-viejo); margin-top: 8px; }
+  .balta-fotos{ display:flex; gap:14px; justify-content:center; margin: 18px 0 6px; }
+  .balta-fotos .polaroid{
+    position: static; width: 40%; max-width: 150px;
+    transform: rotate(var(--rot,0deg)) scale(1); cursor: default; touch-action: auto;
+  }
+  .firma{ font-family: var(--script); font-size: 40px; color: var(--rosa-viejo); margin-top: 8px; line-height: 1; }
+  .firma-sub{ font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--tinta); margin: 6px 0 0; }
   .corazon{ font-size: 34px; animation: latido 1.8s ease-in-out infinite; display:inline-block; }
   footer{ position:relative; z-index:2; text-align:center; padding: 30px 20px calc(env(safe-area-inset-bottom,0px) + 30px); color: var(--tinta-suave); font-size: 12px; }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation: none !important; scroll-behavior: auto; }
     .reveal{ opacity:1 !important; transform:none !important; }
+    .polaroid{ transform: rotate(var(--rot,0deg)) scale(1) !important; }
   }
 </style>
 </head>
@@ -303,8 +299,8 @@
 
 <canvas id="petals" aria-hidden="true"></canvas>
 
-<button class="music-btn" id="musicBtn" aria-label="Reproducir música">♪</button>
-<div class="music-hint" id="musicHint">Tocá la notita para escuchar nuestra canción 🎶</div>
+<button class="music-btn" id="musicBtn" aria-label="Música de fondo">♪</button>
+<div class="music-hint" id="musicHint">Tocá la notita para la música de fondo 🎶</div>
 <audio id="song" loop preload="none">
   <!-- Baltazar: poné acá tu canción de Taylor -> carpeta /musica/cancion.mp3 -->
   <source src="musica/cancion.mp3" type="audio/mpeg" />
@@ -327,7 +323,7 @@
     <div class="name reveal">Aylu</div>
     <button class="flor-inicio reveal" id="florInicio" aria-label="Comenzar">
       <svg viewBox="0 0 120 120" width="120" height="120">
-        <g id="florSvg">
+        <g>
           <g fill="#F1B8CC">
             <ellipse cx="60" cy="30" rx="16" ry="26"/>
             <ellipse cx="60" cy="90" rx="16" ry="26"/>
@@ -377,30 +373,13 @@
   <div class="wrap">
     <p class="eyebrow reveal">Nuestros momentos</p>
     <h2 class="reveal">Un poquito<br/>de nosotros</h2>
-    <div class="fotos reveal">
-      <div class="foto"><img alt="Nosotros" data-src="fotos/foto1.jpg"/><div class="ph"><span class="em">📷</span>tu foto acá</div></div>
-      <div class="foto"><img alt="Nosotros" data-src="fotos/foto2.jpg"/><div class="ph"><span class="em">📷</span>tu foto acá</div></div>
-      <div class="foto"><img alt="Nosotros" data-src="fotos/foto3.jpg"/><div class="ph"><span class="em">📷</span>tu foto acá</div></div>
-      <div class="foto"><img alt="Nosotros" data-src="fotos/foto4.jpg"/><div class="ph"><span class="em">📷</span>tu foto acá</div></div>
-    </div>
-    <p class="soft reveal" style="font-size:13px;margin-top:16px">Cada una de estas es una historia que amo contar.</p>
+    <p class="arrastra-hint reveal">Arrastrá las fotos con el dedo ✋</p>
+    <div class="fotos-scatter reveal" id="fotos"><!-- polaroids por JS --></div>
   </div>
 </section>
 
-<!-- 4 · Taylor Swift -->
+<!-- 4 · Video -->
 <section id="s4">
-  <div class="wrap">
-    <p class="eyebrow reveal">Nuestra banda de sonido</p>
-    <h2 class="reveal">Como diría Taylor…</h2>
-    <div class="vinilo reveal" id="vinilo"><div class="label">🎵</div></div>
-    <p class="lyric reveal">«Sos mi historia favorita»</p>
-    <button class="btn reveal" id="playTaylor">▶ Poné play a nuestra canción</button>
-    <p class="soft reveal" style="font-size:12.5px;margin-top:14px">Subile el volumen y bailemos, aunque sea en tu imaginación 💃</p>
-  </div>
-</section>
-
-<!-- 5 · Video -->
-<section id="s5">
   <div class="wrap">
     <p class="eyebrow reveal">Un mensaje en movimiento</p>
     <h2 class="reveal">Para verte sonreír</h2>
@@ -411,8 +390,8 @@
   </div>
 </section>
 
-<!-- 6 · El regalo (centro) -->
-<section id="s6">
+<!-- 5 · El regalo (centro) -->
+<section id="s5">
   <div class="wrap">
     <p class="eyebrow reveal">El centro de la flor</p>
     <h2 class="reveal">Tu regalo</h2>
@@ -442,13 +421,20 @@
   </div>
 </section>
 
-<!-- Cierre -->
-<section id="s7" style="min-height:auto;padding-bottom:20px">
+<!-- 6 · Cierre -->
+<section id="s6" style="min-height:auto;padding-bottom:20px">
   <div class="wrap">
     <span class="corazon">💗</span>
     <h2 class="reveal" style="margin-top:10px">Feliz cumpleaños,<br/>mi amor</h2>
     <p class="lead reveal" style="margin-top:16px">Que este año te traiga tantas flores como sonrisas me regalás vos. Gracias por ser vos. Te amo.</p>
+
+    <div class="balta-fotos reveal">
+      <div class="polaroid" style="--rot:-5deg"><div class="marco"><img alt="Balta" data-src="fotos/balta1.jpg"/><div class="ph"><span class="em">📷</span>balta1</div></div><div class="pie">yo 💗</div></div>
+      <div class="polaroid" style="--rot:5deg"><div class="marco"><img alt="Balta" data-src="fotos/balta2.jpg"/><div class="ph"><span class="em">📷</span>balta2</div></div><div class="pie">y vos 🌸</div></div>
+    </div>
+
     <p class="firma reveal">Baltazar</p>
+    <p class="firma-sub reveal">De Balta, tu gordito programador 💻💗</p>
   </div>
 </section>
 
@@ -477,23 +463,24 @@
   }, { threshold: .5 });
   secs.forEach(function(s){ if(s) ioP.observe(s); });
 
-  /* ---------- Flor de inicio ---------- */
+  /* ---------- Flor de inicio (arranca música de fondo) ---------- */
   var florInicio = document.getElementById('florInicio');
   if(florInicio){
     florInicio.addEventListener('click', function(){
       lluviaPetalos(24);
+      tocar();
       document.getElementById('s1').scrollIntoView({ behavior:'smooth' });
     });
   }
 
   /* ---------- Pétalos con notas ---------- */
   var notas = [
-    { em:'😊', txt:'Tu sonrisa, que ilumina todo' },
-    { em:'⚖️', txt:'Lo dedicada que sos con tu carrera' },
-    { em:'🎶', txt:'Reirme con vos' },
-    { em:'🌿', txt:'Lo compañera de que sos' },
-    { em:'🏡', txt:'Que sos mi lugar favorito' },
-    { em:'💗', txt:'Absolutamente todo de vos' }
+    { txt:'Tu sonrisa, que ilumina todo' },
+    { txt:'Lo dedicada que sos con tu carrera' },
+    { txt:'Reirme con vos' },
+    { txt:'Lo compañera de que sos' },
+    { txt:'Que sos mi lugar favorito' },
+    { txt:'Absolutamente todo de vos' }
   ];
   var cont = document.getElementById('florNotas');
   if(cont){
@@ -515,12 +502,101 @@
     });
   }
 
+  /* ---------- Fotos arrastrables (polaroids) ---------- */
+  var fotos = [
+    { src:'fotos/foto1.jpg', pie:'nosotros 💗', x:.02, y:.04, r:-7 },
+    { src:'fotos/foto2.jpg', pie:'♡',          x:.48, y:.00, r:6  },
+    { src:'fotos/foto3.jpg', pie:'juntos 🌷',  x:.06, y:.42, r:5  },
+    { src:'fotos/foto4.jpg', pie:'vos y yo',    x:.50, y:.46, r:-6 },
+    { src:'fotos/foto5.jpg', pie:'siempre ✨',  x:.26, y:.22, r:-1 }
+  ];
+  var scatter = document.getElementById('fotos');
+  if(scatter){
+    var zTop = 10;
+    fotos.forEach(function(f, i){
+      var card = document.createElement('div');
+      card.className = 'polaroid';
+      card.style.setProperty('--rot', f.r + 'deg');
+      card.style.zIndex = i + 1;
+      card.dataset.fx = f.x; card.dataset.fy = f.y;
+      card.innerHTML =
+        '<div class="marco"><img alt="Foto nuestra" data-src="' + f.src + '"/>' +
+        '<div class="ph"><span class="em">📷</span>tu foto</div></div>' +
+        '<div class="pie">' + f.pie + '</div>';
+      scatter.appendChild(card);
+      hacerArrastrable(card);
+    });
+
+    // ubicar en % del contenedor
+    function ubicar(){
+      var w = scatter.clientWidth, h = scatter.clientHeight;
+      scatter.querySelectorAll('.polaroid').forEach(function(c){
+        if(c.dataset.movida) return;
+        c.style.left = (parseFloat(c.dataset.fx) * w) + 'px';
+        c.style.top  = (parseFloat(c.dataset.fy) * h) + 'px';
+      });
+    }
+    ubicar();
+    addEventListener('resize', ubicar);
+
+    // entrada escalonada al verse
+    var ioF = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        scatter.querySelectorAll('.polaroid').forEach(function(c, i){
+          setTimeout(function(){ c.classList.add('shown'); }, i * 140);
+        });
+        ioF.disconnect();
+      });
+    }, { threshold: .3 });
+    ioF.observe(scatter);
+  }
+
+  function hacerArrastrable(card){
+    var startX, startY, origX, origY, dragging = false;
+    card.addEventListener('pointerdown', function(e){
+      dragging = true;
+      card.classList.add('grabbing');
+      card.style.zIndex = ++zTopRef.v;
+      startX = e.clientX; startY = e.clientY;
+      origX = parseFloat(card.style.left) || 0;
+      origY = parseFloat(card.style.top) || 0;
+      try{ card.setPointerCapture(e.pointerId); }catch(err){}
+    });
+    card.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      e.preventDefault();
+      var w = scatter.clientWidth, h = scatter.clientHeight;
+      var cw = card.offsetWidth, ch = card.offsetHeight;
+      var nx = origX + (e.clientX - startX);
+      var ny = origY + (e.clientY - startY);
+      nx = Math.max(-cw*0.25, Math.min(w - cw*0.75, nx));
+      ny = Math.max(0, Math.min(h - ch*0.4, ny));
+      card.style.left = nx + 'px';
+      card.style.top  = ny + 'px';
+      card.dataset.movida = '1';
+    });
+    function soltar(e){
+      if(!dragging) return;
+      dragging = false;
+      card.classList.remove('grabbing');
+      try{ card.releasePointerCapture(e.pointerId); }catch(err){}
+    }
+    card.addEventListener('pointerup', soltar);
+    card.addEventListener('pointercancel', soltar);
+  }
+  var zTopRef = { v: 20 };
+
   /* ---------- Cargar fotos/video si existen ---------- */
-  document.querySelectorAll('.foto img').forEach(function(img){
+  document.querySelectorAll('img[data-src]').forEach(function(img){
     var src = img.getAttribute('data-src');
     if(!src) return;
     var probe = new Image();
-    probe.onload = function(){ img.src = src; img.parentElement.classList.add('tiene-foto'); };
+    probe.onload = function(){
+      img.src = src;
+      var p = img.closest('.polaroid') || img.closest('.foto');
+      if(p) p.classList.add('tiene-foto');
+    };
     probe.src = src;
   });
   (function(){
@@ -536,17 +612,16 @@
     }).catch(function(){});
   })();
 
-  /* ---------- Música ---------- */
+  /* ---------- Música de fondo ---------- */
   var song = document.getElementById('song');
   var mbtn = document.getElementById('musicBtn');
-  var vinilo = document.getElementById('vinilo');
   var hint = document.getElementById('musicHint');
-  var playTaylor = document.getElementById('playTaylor');
 
   setTimeout(function(){ hint.classList.add('show'); }, 1200);
-  setTimeout(function(){ hint.classList.remove('show'); }, 6000);
+  setTimeout(function(){ hint.classList.remove('show'); }, 6500);
 
   function tocar(){
+    if(!song.paused) return;
     var p = song.play();
     if(p && p.catch){ p.catch(function(){
       hint.textContent = 'Agregá tu canción en /musica/cancion.mp3 🎵';
@@ -558,21 +633,13 @@
     var on = !song.paused && !song.ended;
     mbtn.classList.toggle('playing', on);
     mbtn.textContent = on ? '❚❚' : '♪';
-    if(vinilo) vinilo.classList.toggle('girando', on);
   }
   song.addEventListener('play', actualizar);
   song.addEventListener('pause', actualizar);
-
   mbtn.addEventListener('click', function(){
     hint.classList.remove('show');
     if(song.paused) tocar(); else song.pause();
   });
-  if(playTaylor){
-    playTaylor.addEventListener('click', function(){
-      if(song.paused){ tocar(); document.getElementById('s4').scrollIntoView({behavior:'smooth'}); }
-      else song.pause();
-    });
-  }
 
   /* ---------- Regalo ---------- */
   var regalo = document.getElementById('regalo');
