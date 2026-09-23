@@ -19,20 +19,19 @@ Cuando quieras que aparezcan las cosas reales, sumá los archivos con **estos
 nombres exactos**:
 
 ### 📷 Fotos
-Poné las fotos de la galería (arrastrables) en la carpeta `fotos/`:
+La galería (arrastrable) usa 15 fotos en la carpeta `fotos/`:
 ```
-fotos/foto1.jpg
-fotos/foto2.jpg
-fotos/foto3.jpg
-fotos/foto4.jpg
-fotos/foto5.jpg
+fotos/foto1.jpeg … fotos/foto15.jpeg
 ```
 
-Y las dos fotos tuyas del cierre:
+Y las dos fotos del cierre:
 ```
-fotos/balta1.jpg
-fotos/balta2.jpg
+fotos/balta1.jpeg
+fotos/balta2.jpeg
 ```
+
+> Para cambiar la cantidad de fotos de la galería, editá `TOTAL_FOTOS`
+> dentro del `<script>` en `index.html`.
 
 ### 🎬 Video
 Poné un video en la carpeta `video/`:

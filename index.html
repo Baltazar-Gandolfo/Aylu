@@ -188,7 +188,7 @@
   /* ---------- Fotos (arrastrables) ---------- */
   .fotos-scatter{
     position: relative; width: 100%;
-    height: min(64svh, 440px); margin-top: 18px;
+    height: min(78svh, 560px); margin-top: 18px;
     touch-action: pan-y;
   }
   .polaroid{
@@ -429,8 +429,8 @@
     <p class="lead reveal" style="margin-top:16px">Que este año te traiga tantas flores como sonrisas me regalás vos. Gracias por ser vos. Te amo.</p>
 
     <div class="balta-fotos reveal">
-      <div class="polaroid" style="--rot:-5deg"><div class="marco"><img alt="Balta" data-src="fotos/balta1.jpg"/><div class="ph"><span class="em">📷</span>balta1</div></div><div class="pie">yo 💗</div></div>
-      <div class="polaroid" style="--rot:5deg"><div class="marco"><img alt="Balta" data-src="fotos/balta2.jpg"/><div class="ph"><span class="em">📷</span>balta2</div></div><div class="pie">y vos 🌸</div></div>
+      <div class="polaroid" style="--rot:-5deg"><div class="marco"><img alt="Balta" data-src="fotos/balta1.jpeg"/><div class="ph"><span class="em">📷</span>balta1</div></div><div class="pie">yo 💗</div></div>
+      <div class="polaroid" style="--rot:5deg"><div class="marco"><img alt="Balta" data-src="fotos/balta2.jpeg"/><div class="ph"><span class="em">📷</span>balta2</div></div><div class="pie">y vos 🌸</div></div>
     </div>
 
     <p class="firma reveal">Baltazar</p>
@@ -503,37 +503,40 @@
   }
 
   /* ---------- Fotos arrastrables (polaroids) ---------- */
-  var fotos = [
-    { src:'fotos/foto1.jpg', pie:'nosotros 💗', x:.02, y:.04, r:-7 },
-    { src:'fotos/foto2.jpg', pie:'♡',          x:.48, y:.00, r:6  },
-    { src:'fotos/foto3.jpg', pie:'juntos 🌷',  x:.06, y:.42, r:5  },
-    { src:'fotos/foto4.jpg', pie:'vos y yo',    x:.50, y:.46, r:-6 },
-    { src:'fotos/foto5.jpg', pie:'siempre ✨',  x:.26, y:.22, r:-1 }
-  ];
+  var TOTAL_FOTOS = 15;
   var scatter = document.getElementById('fotos');
   if(scatter){
-    var zTop = 10;
-    fotos.forEach(function(f, i){
+    for(var fi = 1; fi <= TOTAL_FOTOS; fi++){
       var card = document.createElement('div');
       card.className = 'polaroid';
-      card.style.setProperty('--rot', f.r + 'deg');
-      card.style.zIndex = i + 1;
-      card.dataset.fx = f.x; card.dataset.fy = f.y;
+      card.style.setProperty('--rot', (((fi*37) % 15) - 7) + 'deg');
+      card.style.zIndex = fi;
       card.innerHTML =
-        '<div class="marco"><img alt="Foto nuestra" data-src="' + f.src + '"/>' +
-        '<div class="ph"><span class="em">📷</span>tu foto</div></div>' +
-        '<div class="pie">' + f.pie + '</div>';
+        '<div class="marco"><img alt="Foto nuestra" data-src="fotos/foto' + fi + '.jpeg"/>' +
+        '<div class="ph"><span class="em">📷</span>foto ' + fi + '</div></div>';
       scatter.appendChild(card);
       hacerArrastrable(card);
-    });
+    }
 
-    // ubicar en % del contenedor
+    // repartir las fotos en una grilla despareja (tipo pila sobre la mesa)
     function ubicar(){
+      var cards = scatter.querySelectorAll('.polaroid');
+      if(!cards.length) return;
       var w = scatter.clientWidth, h = scatter.clientHeight;
-      scatter.querySelectorAll('.polaroid').forEach(function(c){
+      var cw = cards[0].offsetWidth || w*0.4, ch = cards[0].offsetHeight || 160;
+      var cols = w < 300 ? 2 : 3;
+      var rows = Math.ceil(cards.length / cols);
+      var gx = cols > 1 ? (w - cw) / (cols - 1) : 0;
+      var gy = rows > 1 ? (h - ch) / (rows - 1) : 0;
+      cards.forEach(function(c, i){
         if(c.dataset.movida) return;
-        c.style.left = (parseFloat(c.dataset.fx) * w) + 'px';
-        c.style.top  = (parseFloat(c.dataset.fy) * h) + 'px';
+        var col = i % cols, row = Math.floor(i / cols);
+        var jx = ((((i*53) % 20) - 10) / 100) * cw;
+        var jy = ((((i*29) % 20) - 10) / 100) * ch;
+        var left = Math.max(0, Math.min(w - cw, col*gx + jx));
+        var top  = Math.max(0, Math.min(h - ch, row*gy + jy));
+        c.style.left = left + 'px';
+        c.style.top  = top + 'px';
       });
     }
     ubicar();
@@ -544,7 +547,7 @@
       entries.forEach(function(e){
         if(!e.isIntersecting) return;
         scatter.querySelectorAll('.polaroid').forEach(function(c, i){
-          setTimeout(function(){ c.classList.add('shown'); }, i * 140);
+          setTimeout(function(){ c.classList.add('shown'); }, i * 85);
         });
         ioF.disconnect();
       });
